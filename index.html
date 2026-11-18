@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#030A0C">
+<title>每日打卡儲分換禮品</title>
+<meta name="description" content="LongbridgeAI × DotAI 每日打卡儲分換禮品：查詢積分、打卡日曆、排行榜及兌換禮品">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --g: #00DBB6; --g65: #59E7CC; --g35: #A8F2E4;
+    --o: #FC5200; --o65: #FD8B4D; --y: #FFE000;
+    --w: #fff; --k: #000;
+    --d1: #030A0C; --d2: #0B2F33; --d3: #0E5F55;
+    --t1: rgba(255,255,255,.92); --t2: rgba(255,255,255,.62); --t3: rgba(255,255,255,.38);
+    --glass: rgba(255,255,255,.045); --glass2: rgba(255,255,255,.08); --edge: rgba(255,255,255,.09);
+    --font: "DM Sans", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh; color: var(--t1); font-family: var(--font); font-size: 15px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased; background: var(--d1);
+    background-image:
+      radial-gradient(900px 520px at 85% -5%, rgba(0,219,182,.20), transparent 60%),
+      radial-gradient(700px 600px at -10% 40%, rgba(14,95,85,.35), transparent 60%),
+      linear-gradient(180deg, var(--d1) 0%, #061719 45%, var(--d2) 100%);
+    background-attachment: fixed;
+  }
+  body::before { /* 細格網，呼應 banner */
+    content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .5;
+    background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size: 40px 40px; mask-image: linear-gradient(180deg, #000 0%, transparent 70%);
+  }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 0 16px 56px; position: relative; z-index: 1; }
+
+  /* ---------- Hero ---------- */
+  .hero { position: relative; padding: 22px 0 18px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand img { display: block; }
+  .brand .dot { height: 20px; }
+  .brand .lb { height: 21px; }
+  .brand .x { color: var(--t3); font-size: 14px; }
+  .star { position: absolute; right: -6px; top: 38px; width: 132px; height: 132px; pointer-events: none; filter: drop-shadow(0 0 28px rgba(0,219,182,.55)); }
+  .star.sm { right: 132px; top: 150px; width: 26px; height: 26px; filter: drop-shadow(0 0 10px rgba(0,219,182,.6)); }
+  .star.xs { right: 20px; top: 170px; width: 18px; height: 18px; opacity: .6; filter: none; }
+  .hero h1 { font-size: 32px; line-height: 1.2; margin: 34px 0 10px; letter-spacing: .5px; max-width: 72%; }
+  .pill { display: inline-block; background: var(--g); color: var(--k); font-weight: 700; font-size: 13px; padding: 3px 10px; border-radius: 4px; }
+  .hero .sub { color: var(--t2); font-size: 14px; margin-top: 12px; }
+
+  /* ---------- Card ---------- */
+  .card { background: var(--glass); border: 1px solid var(--edge); border-radius: 20px; padding: 20px; margin-top: 14px;
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .card h2 { font-size: 17px; margin: 0 0 14px; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .card h2 small { font-size: 12px; font-weight: 400; color: var(--t2); }
+  label { display: block; font-size: 13px; color: var(--t2); margin: 14px 0 6px; }
+  input { width: 100%; padding: 13px 14px; font-size: 16px; font-family: inherit; color: var(--w); background: rgba(0,0,0,.35);
+    border: 1px solid var(--edge); border-radius: 12px; }
+  input::placeholder { color: var(--t3); }
+  input:focus { outline: none; border-color: var(--g); box-shadow: 0 0 0 3px rgba(0,219,182,.18); }
+  .btn { font-family: inherit; font-size: 15px; font-weight: 700; border: 0; border-radius: 12px; padding: 13px 18px; cursor: pointer;
+    background: var(--g); color: var(--k); transition: transform .08s, box-shadow .2s; }
+  .btn:hover:not(:disabled) { box-shadow: 0 0 0 4px rgba(0,219,182,.18), 0 8px 24px rgba(0,219,182,.25); }
+  .btn:active:not(:disabled) { transform: scale(.98); }
+  .btn.full { width: 100%; margin-top: 18px; }
+  .btn.ghost { background: transparent; color: var(--t1); border: 1px solid var(--edge); }
+  .btn.ghost:hover { box-shadow: none; background: var(--glass2); }
+  .btn:disabled { background: rgba(255,255,255,.08); color: var(--t3); cursor: not-allowed; }
+  .hint { font-size: 12px; color: var(--t2); margin-top: 12px; }
+  .err { color: var(--o65); font-size: 14px; margin-top: 10px; min-height: 1em; }
+  .hidden { display: none !important; }
+  .demo { margin-top: 6px; background: rgba(255,224,0,.10); border: 1px solid rgba(255,224,0,.35); color: var(--t1); border-radius: 12px; padding: 9px 12px; font-size: 13px; }
+  .demo b { color: var(--y); }
+
+  /* ---------- Score hero ---------- */
+  .topbar { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; color: var(--t2); font-size: 13px; }
+  .topbar b { color: var(--t1); }
+  .topbar .btn { padding: 6px 12px; font-size: 13px; }
+  .score { display: grid; grid-template-columns: 148px 1fr; gap: 18px; align-items: center; }
+  .ring { position: relative; width: 148px; height: 148px; }
+  .ring svg { transform: rotate(-90deg); }
+  .ring .mid { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+  .ring .n { font-size: 32px; font-weight: 700; line-height: 1; color: var(--w); }
+  .ring .l { font-size: 12px; color: var(--t2); margin-top: 4px; }
+  .next { font-size: 14px; color: var(--t2); }
+  .next b { color: var(--g); font-size: 15px; }
+  .mini { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .mini div { background: rgba(0,0,0,.25); border: 1px solid var(--edge); border-radius: 12px; padding: 8px 10px; }
+  .mini b { display: block; font-size: 18px; color: var(--w); }
+  .mini span { font-size: 11px; color: var(--t2); }
+  .asof { font-size: 12px; color: var(--t3); margin-top: 14px; }
+
+  .streak { display: flex; gap: 10px; margin-top: 14px; }
+  .streak div { flex: 1; border-radius: 14px; padding: 12px; background: linear-gradient(135deg, rgba(0,219,182,.16), rgba(0,219,182,.04)); border: 1px solid rgba(0,219,182,.25); }
+  .streak div.warn { background: linear-gradient(135deg, rgba(252,82,0,.16), rgba(252,82,0,.04)); border-color: rgba(252,82,0,.3); }
+  .streak b { font-size: 22px; color: var(--w); }
+  .streak span { display: block; font-size: 12px; color: var(--t2); }
+
+  /* ---------- Checklist ---------- */
+  .checks { display: grid; gap: 8px; }
+  .chk { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px; background: rgba(0,0,0,.22); border: 1px solid var(--edge); }
+  .chk .ic { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; flex: none; }
+  .chk.ok .ic { background: var(--g); color: var(--k); box-shadow: 0 0 14px rgba(0,219,182,.5); }
+  .chk.todo .ic { border: 1.5px dashed var(--t3); color: var(--t3); }
+  .chk .t { flex: 1; min-width: 0; }
+  .chk .t div:first-child { font-weight: 500; color: var(--w); }
+  .chk .t div:last-child { font-size: 12px; color: var(--t2); }
+  .chk .pts { font-weight: 700; font-size: 14px; color: var(--g); white-space: nowrap; }
+  .chk.todo .pts { color: var(--t3); }
+
+  /* ---------- Calendar ---------- */
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--t2); margin-bottom: 12px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+  .tabs button { flex: 1; font-family: inherit; font-size: 13px; font-weight: 500; padding: 8px; border-radius: 10px; border: 1px solid var(--edge); background: transparent; color: var(--t2); cursor: pointer; }
+  .tabs button.on { background: var(--w); color: var(--k); border-color: var(--w); font-weight: 700; }
+  .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .dow { font-size: 11px; color: var(--t3); text-align: center; padding-bottom: 2px; }
+  .d { aspect-ratio: 1; border-radius: 10px; display: grid; place-items: center; font-size: 13px; font-weight: 500; position: relative; }
+  .d.on { background: var(--g); color: var(--k); font-weight: 700; box-shadow: 0 0 12px rgba(0,219,182,.35); }
+  .d.miss { border: 1.5px solid rgba(252,82,0,.55); color: var(--o65); }
+  .d.miss::after { content: ""; position: absolute; width: 4px; height: 4px; border-radius: 50%; background: var(--o); bottom: 5px; }
+  .d.pre { color: rgba(255,255,255,.18); }
+  .d.wait { border: 1px dashed rgba(255,255,255,.18); color: var(--t2); }
+  .d.out { visibility: hidden; }
+  .d.today { outline: 2px solid var(--y); outline-offset: 1px; }
+  .calsum { display: flex; justify-content: space-between; font-size: 13px; color: var(--t2); margin-top: 12px; }
+  .calsum b { color: var(--w); }
+
+  /* ---------- Gifts ---------- */
+  .gifts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .gift { border-radius: 16px; padding: 14px; background: rgba(0,0,0,.25); border: 1px solid var(--edge); display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden; }
+  .gift.can { border-color: rgba(0,219,182,.45); background: linear-gradient(160deg, rgba(0,219,182,.14), rgba(0,0,0,.25) 60%); }
+  .gift .ico { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--glass2); }
+  .gift.can .ico { background: var(--g); }
+  .gift.can .ico svg { stroke: var(--k); }
+  .gift .ico svg { width: 22px; height: 22px; stroke: var(--g); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .gift .nm { font-weight: 700; color: var(--w); font-size: 14px; line-height: 1.35; min-height: 38px; }
+  .gift .cost { font-size: 20px; font-weight: 700; color: var(--g); }
+  .gift .cost small { font-size: 12px; color: var(--t2); font-weight: 400; }
+  .gift .meta { font-size: 12px; color: var(--t2); }
+  .gift .btn { padding: 10px; font-size: 14px; margin-top: auto; }
+  .tag { position: absolute; top: 12px; right: 12px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px; }
+  .tag.e { background: rgba(0,219,182,.18); color: var(--g); }
+  .tag.p { background: rgba(255,224,0,.15); color: var(--y); }
+  .bar { height: 4px; background: rgba(255,255,255,.08); border-radius: 99px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--g); border-radius: 99px; }
+
+  /* ---------- History ---------- */
+  .hist { display: grid; gap: 8px; }
+  .h { padding: 12px; border-radius: 14px; background: rgba(0,0,0,.22); border: 1px solid var(--edge); }
+  .h .top { display: flex; justify-content: space-between; gap: 8px; }
+  .h .top b { color: var(--w); font-size: 14px; }
+  .h .st { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--glass2); color: var(--t1); white-space: nowrap; }
+  .h .st.done { background: rgba(0,219,182,.18); color: var(--g); }
+  .h .code { font-family: ui-monospace, Menlo, monospace; font-size: 13px; color: var(--g65); margin-top: 4px; }
+  .h .note { font-size: 12px; color: var(--t2); margin-top: 4px; }
+
+  /* ---------- Leaderboard ---------- */
+  .podium { display: grid; grid-template-columns: 1fr 1.1fr 1fr; gap: 8px; align-items: end; margin-bottom: 12px; }
+  .pod { text-align: center; border-radius: 16px 16px 10px 10px; padding: 12px 6px 10px; background: var(--glass2); border: 1px solid var(--edge); }
+  .pod .medal { width: 34px; height: 34px; margin: 0 auto 6px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: var(--k); }
+  .pod.p1 { padding-top: 22px; background: linear-gradient(180deg, rgba(0,219,182,.22), rgba(0,219,182,.05)); border-color: rgba(0,219,182,.45); }
+  .pod.p1 .medal { background: var(--g); box-shadow: 0 0 18px rgba(0,219,182,.6); width: 40px; height: 40px; }
+  .pod.p2 .medal { background: var(--w); }
+  .pod.p3 .medal { background: var(--o65); }
+  .pod .id { font-size: 13px; font-weight: 700; color: var(--w); }
+  .pod .dd { font-size: 12px; color: var(--t2); }
+  .pod.me { outline: 2px solid var(--y); }
+  .rows { display: grid; gap: 6px; }
+  .rw { display: grid; grid-template-columns: 36px 1fr auto auto; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 12px; background: rgba(0,0,0,.22); font-size: 14px; }
+  .rw .r { color: var(--t2); font-weight: 700; }
+  .rw .dd { color: var(--w); font-weight: 700; }
+  .rw .pt { color: var(--t2); font-size: 12px; min-width: 64px; text-align: right; }
+  .rw.me { background: rgba(0,219,182,.16); outline: 1px solid rgba(0,219,182,.5); }
+  .myrank { display: flex; justify-content: space-between; align-items: center; border-radius: 14px; padding: 12px 14px; margin-bottom: 12px;
+    background: linear-gradient(135deg, rgba(255,224,0,.14), rgba(255,224,0,.03)); border: 1px solid rgba(255,224,0,.35); font-size: 14px; }
+  .myrank b { color: var(--y); font-size: 20px; }
+
+  .rules { font-size: 13px; color: var(--t2); padding-left: 18px; margin: 0; }
+  .rules li { margin-bottom: 6px; }
+  .rules b { color: var(--t1); }
+  .rules a { color: var(--g); }
+
+  /* ---------- Modal ---------- */
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: grid; place-items: center; padding: 16px; z-index: 50; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .sheet { background: linear-gradient(160deg, #0D2A2D, #061214); border: 1px solid rgba(0,219,182,.3); border-radius: 22px; padding: 22px; max-width: 420px; width: 100%; box-shadow: 0 24px 60px rgba(0,0,0,.5); }
+  .sheet h3 { margin: 0 0 8px; font-size: 20px; color: var(--w); }
+  .sheet p { color: var(--t1); }
+  .sheet .big { font-family: ui-monospace, Menlo, monospace; font-size: 21px; font-weight: 700; color: var(--g); background: rgba(0,219,182,.08); border: 1px dashed var(--g); border-radius: 12px; padding: 12px; text-align: center; margin: 14px 0; letter-spacing: .5px; }
+  .sheet .row { display: flex; gap: 10px; margin-top: 18px; }
+  .sheet .row .btn { flex: 1; }
+  footer { text-align: center; font-size: 11px; color: var(--t3); padding: 8px 16px 36px; max-width: 680px; margin: 0 auto; position: relative; z-index: 1; }
+
+  @media (max-width: 420px) {
+    .hero h1 { font-size: 27px; }
+    .star { width: 104px; height: 104px; top: 50px; }
+    .score { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+    .gifts { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 360px) { .gifts { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <radialGradient id="sg" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#E9FFFA"/><stop offset=".45" stop-color="#7BF0D9"/><stop offset="1" stop-color="#00DBB6"/></radialGradient>
+    <symbol id="star4" viewBox="0 0 100 100"><path d="M50 0 C54 34 66 46 100 50 C66 54 54 66 50 100 C46 66 34 54 0 50 C34 46 46 34 50 0Z" fill="url(#sg)"/></symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="brand">
+      <img class="dot" src="dotai-logo.png" alt="Dot.ai">
+      <span class="x">×</span>
+      <img class="lb" src="lbai-logo.png" alt="LongbridgeAI">
+    </div>
+    <svg class="star"><use href="#star4"/></svg>
+    <svg class="star sm"><use href="#star4"/></svg>
+    <svg class="star xs"><use href="#star4"/></svg>
+    <h1>每日打卡<br>儲分換禮品</h1>
+    <span class="pill">積分查詢 Points</span>
+    <div class="sub">活動期 2026/11/19 – 2027/1/31・兌換截止 2027/2/7</div>
+    <div id="demoBar" class="demo hidden">示範模式：顯示假資料。用長橋 ID <b>demo</b>、手機 <b>12345678</b> 登入試用。</div>
+  </header>
+
+  <!-- 登入 -->
+  <section id="login" class="card">
+    <h2>登入查詢</h2>
+    <label for="id">長橋 ID（即 App 登入 ID / User ID）</label>
+    <input id="id" autocomplete="username" placeholder="報名表所填長橋 ID">
+    <label for="contact">手機號碼或電郵</label>
+    <input id="contact" autocomplete="off" placeholder="報名表所填手機或電郵">
+    <button class="btn full" id="goBtn">查詢我的積分</button>
+    <div class="err" id="loginErr"></div>
+    <div class="hint">資料以報名表及 LongbridgeAI 後台為準，每日更新一次（今日打卡於翌日顯示）。未報名？請先填寫報名表，報名前的打卡不計分。</div>
+  </section>
+
+  <!-- 個人頁 -->
+  <div id="me" class="hidden">
+    <div class="topbar"><span>長橋 ID：<b id="meId"></b></span><button class="btn ghost" id="logoutBtn">登出</button></div>
+
+    <section class="card">
+      <div class="score">
+        <div class="ring">
+          <svg width="148" height="148" viewBox="0 0 148 148">
+            <circle cx="74" cy="74" r="64" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="12"/>
+            <circle id="ringArc" cx="74" cy="74" r="64" fill="none" stroke="#00DBB6" stroke-width="12" stroke-linecap="round" stroke-dasharray="402" stroke-dashoffset="402" style="transition:stroke-dashoffset .9s ease;filter:drop-shadow(0 0 6px rgba(0,219,182,.6))"/>
+          </svg>
+          <div class="mid"><div class="n" id="sBal">0</div><div class="l">可用積分</div></div>
+        </div>
+        <div>
+          <div class="next" id="nextGift"></div>
+          <div class="mini">
+            <div><b id="sTotal">0</b><span>累積積分</span></div>
+            <div><b id="sSpent">0</b><span>已兌換</span></div>
+            <div><b id="sDays">0</b><span>打卡日數</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="streak">
+        <div><b id="sStreak">0</b> 日<span>現時連續打卡</span></div>
+        <div><b id="sBest">0</b> 日<span>最長連續打卡</span></div>
+        <div id="missBox" class="warn"><b id="sMiss">0</b> 日<span>漏打卡</span></div>
+      </div>
+      <div class="asof" id="asof"></div>
+    </section>
+
+    <section class="card">
+      <h2>參加狀態</h2>
+      <div class="checks" id="checks"></div>
+    </section>
+
+    <section class="card">
+      <h2>打卡日曆 <small id="calRange"></small></h2>
+      <div class="tabs" id="calTabs"></div>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--g)"></i>已打卡 +180</span>
+        <span><i class="sw" style="border:1.5px solid rgba(252,82,0,.6)"></i>漏打卡</span>
+        <span><i class="sw" style="border:1px dashed rgba(255,255,255,.3)"></i>未更新／未到</span>
+        <span><i class="sw" style="outline:2px solid var(--y)"></i>今日</span>
+      </div>
+      <div id="cal"></div>
+      <div class="calsum" id="calSum"></div>
+    </section>
+
+    <section class="card">
+      <h2>兌換禮品 <small>每次兌換扣除所需積分</small></h2>
+      <div class="gifts" id="gifts"></div>
+      <div class="hint" id="redeemHint"></div>
+    </section>
+
+    <section class="card">
+      <h2>兌換記錄</h2>
+      <div class="hist" id="hist"></div>
+    </section>
+  </div>
+
+  <!-- 排行榜 -->
+  <section class="card" id="boardCard">
+    <h2>打卡排行榜 <small id="boardAsOf"></small></h2>
+    <div id="myRank"></div>
+    <div id="podium"></div>
+    <div id="board"><div class="hint">載入中…</div></div>
+    <div class="hint">按已打卡日數排名，同日數以累積積分較高者優先。只顯示部分長橋 ID 以保障私隱。排行榜僅供參考，不設額外獎賞。</div>
+  </section>
+
+  <section class="card">
+    <h2>活動規則摘要</h2>
+    <ul class="rules">
+      <li>每日於 LongbridgeAI 提出一條<b>有效問題</b>即完成打卡，得 <b>180 分</b>（每日 1 次，以香港時間計）。</li>
+      <li>建立<b>定時任務 +200 分</b>、建立<b>自定義 Agent +300 分</b>（各限 1 次）。</li>
+      <li>重複問題或少於十個字的問題不計分；報名前的打卡不計入。</li>
+      <li>兌換截止 <b>2027 年 2 月 7 日 23:59:59</b>，逾期剩餘積分清零。禮品數量有限，先到先得。</li>
+      <li><b>電子禮品</b>：兌換後 7–14 個工作日內發送至「長橋 App → 我的卡券」。</li>
+      <li><b>實物禮品</b>：於 Longbridge Café（尖沙咀彌敦道 26 號地舖）領取。1 月 31 日或之前兌換者，將於 1 月 31 日或之前收到領取通知；2 月 1 日至 7 日兌換者，將於 2 月 14 日或之前收到通知。</li>
+      <li id="tncLi" class="hidden">詳情請參閱 <a id="tncLink" target="_blank" rel="noopener">條款及細則</a>。</li>
+    </ul>
+  </section>
+</div>
+
+<footer>本活動及任何相關獎勵均不構成投資建議。積分以 LongbridgeAI 後台數據為準。</footer>
+
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
+
+<script src="config.js"></script>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const API = (window.API_URL || '').trim();
+  const DEMO = !API || new URLSearchParams(location.search).has('demo');
+  const fmtN = (n) => Number(n || 0).toLocaleString('en-US');
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const cnDate = (d) => { const [y, m, dd] = d.split('-').map(Number); return `${y} 年 ${m} 月 ${dd} 日`; };
+  const shortDate = (d) => { const [, m, dd] = d.split('-').map(Number); return `${m}/${dd}`; };
+  const addDay = (d, n) => { const t = new Date(d + 'T00:00:00Z'); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); };
+  const ICON = {
+    CS: '<path d="M7 2h10v20H7z"/><path d="M13 6l-3 6h4l-3 6"/>',
+    PK: '<rect x="4" y="3" width="11" height="16" rx="2"/><path d="M9 21h9a2 2 0 0 0 2-2V7"/><path d="M9.5 8.5l1.5 2-1.5 2-1.5-2z"/>',
+    CUP: '<path d="M4 8h12v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M16 10h2a2 2 0 0 1 0 4h-2"/><path d="M8 2v3M12 2v3"/>',
+    NV: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
+  };
+  let cred = null, state = null, calMonth = null;
+
+  if (window.TNC_URL) { $('tncLink').href = window.TNC_URL; $('tncLi').classList.remove('hidden'); }
+  if (DEMO) $('demoBar').classList.remove('hidden');
+
+  async function call(body) {
+    if (DEMO) return demo(body);
+    const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  }
+
+  /* ---------------- 登入 ---------------- */
+  async function login() {
+    const id = $('id').value.trim(), contact = $('contact').value.trim();
+    $('loginErr').textContent = '';
+    if (!id || !contact) { $('loginErr').textContent = '請輸入長橋 ID 及手機或電郵。'; return; }
+    $('goBtn').disabled = true; $('goBtn').textContent = '查詢中…';
+    try {
+      const r = await call({ action: 'lookup', id, contact });
+      if (r.error) { $('loginErr').textContent = r.error; return; }
+      cred = { id, contact };
+      try { sessionStorage.setItem('dotai-cred', JSON.stringify(cred)); } catch (e) {}
+      show(r);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e) {
+      $('loginErr').textContent = '連線失敗，請稍後再試。';
+    } finally {
+      $('goBtn').disabled = false; $('goBtn').textContent = '查詢我的積分';
+    }
+  }
+
+  function logout() {
+    cred = null; state = null;
+    try { sessionStorage.removeItem('dotai-cred'); } catch (e) {}
+    $('me').classList.add('hidden'); $('login').classList.remove('hidden');
+    $('contact').value = '';
+    loadBoard();
+  }
+
+  /* ---------------- 計算 ---------------- */
+  function streaks(s) {
+    const on = new Set(s.dates);
+    let best = 0, run = 0, prev = null;
+    for (const d of s.dates) { run = (prev && addDay(prev, 1) === d) ? run + 1 : 1; best = Math.max(best, run); prev = d; }
+    let cur = 0, d = s.dataAsOf || '';
+    if (d && !on.has(d)) d = addDay(d, -1); // 截至日未打卡，則由前一日起計（今日仍可補）
+    while (d && on.has(d)) { cur++; d = addDay(d, -1); }
+    return { cur, best };
+  }
+
+  /* ---------------- 顯示 ---------------- */
+  function show(s) {
+    state = s;
+    $('login').classList.add('hidden'); $('me').classList.remove('hidden');
+    $('meId').textContent = s.id;
+
+    const gifts = s.gifts.filter(g => g.enabled !== false && g.remaining > 0).sort((a, b) => a.cost - b.cost);
+    const target = gifts.find(g => g.cost > s.balance) || null;
+    const ringMax = target ? target.cost : Math.max(s.balance, 1);
+    $('sBal').textContent = fmtN(s.balance);
+    requestAnimationFrame(() => { $('ringArc').style.strokeDashoffset = String(402 * (1 - Math.min(1, s.balance / ringMax))); });
+    if (target) {
+      const need = target.cost - s.balance, days = Math.ceil(need / 180);
+      $('nextGift').innerHTML = `距離 <b>${esc(target.name)}</b><br>尚差 <b>${fmtN(need)}</b> 分・約再打卡 <b>${days}</b> 日`;
+    } else {
+      $('nextGift').innerHTML = gifts.length ? '<b>積分已足夠兌換所有禮品！</b><br>到下方揀選你想要的禮品。' : '禮品暫時已全部送完。';
+    }
+    $('sTotal').textContent = fmtN(s.total);
+    $('sSpent').textContent = fmtN(s.spent);
+    $('sDays').textContent = s.days;
+
+    const st = streaks(s);
+    const miss = countMiss(s);
+    $('sStreak').textContent = st.cur;
+    $('sBest').textContent = st.best;
+    $('sMiss').textContent = miss;
+    $('missBox').classList.toggle('warn', miss > 0);
+    $('asof').textContent = s.dataAsOf ? `打卡數據截至 ${cnDate(s.dataAsOf)}・每日更新一次，今日打卡將於翌日顯示` : '打卡數據每日更新一次。';
+
+    const lastDay = s.dates.length ? s.dates[s.dates.length - 1] : '';
+    const askedAsOf = s.dataAsOf && s.dates.includes(s.dataAsOf);
+    const items = [
+      { ok: true, t: '已報名', d: `報名日期 ${cnDate(s.registered)}・由 ${cnDate(s.countFrom)} 起計分`, p: '' },
+      { ok: s.days > 0, t: s.days > 0 ? `已在 LongbridgeAI 提問 ${s.days} 日` : '尚未有有效打卡記錄',
+        d: s.days > 0 ? `最近打卡 ${cnDate(lastDay)}` + (s.dataAsOf ? (askedAsOf ? `・${shortDate(s.dataAsOf)} 已打卡 ✓` : `・${shortDate(s.dataAsOf)} 未打卡`) : '')
+                      : '每日提出一條有效問題（不少於十個字）即可打卡', p: `+${fmtN(s.days * 180)}` },
+      { ok: s.task, t: '建立定時任務', d: s.task ? '已完成' : '在 LongbridgeAI 建立一個定時任務即可獲得', p: '+200' },
+      { ok: s.agent, t: '建立自定義 Agent', d: s.agent ? '已完成' : '在 LongbridgeAI 建立一個自定義 Agent 即可獲得', p: '+300' },
+    ];
+    $('checks').innerHTML = items.map(i => `
+      <div class="chk ${i.ok ? 'ok' : 'todo'}"><div class="ic">${i.ok ? '✓' : ''}</div>
+      <div class="t"><div>${esc(i.t)}</div><div>${esc(i.d)}</div></div><div class="pts">${i.p}</div></div>`).join('');
+
+    if (!calMonth) {
+      const ref = s.dataAsOf || s.today || s.campaign.start;
+      calMonth = ref < '2026-12-01' ? '2026-11' : ref < '2027-01-01' ? '2026-12' : '2027-01';
+    }
+    renderCal();
+    renderGifts(s);
+    renderHist(s);
+    renderBoard(s.board);
+  }
+
+  function dayState(s, ds) {
+    if (ds < s.campaign.start || ds > s.campaign.end) return ['pre', '活動期外'];
+    if (ds < s.countFrom) return ['pre', '報名前（不計分）'];
+    if (s.dates.includes(ds)) return ['on', '已打卡 +180'];
+    if (s.dataAsOf && ds <= s.dataAsOf) return ['miss', '漏打卡'];
+    return ['wait', '未更新／未到'];
+  }
+  function countMiss(s) {
+    let n = 0, d = s.countFrom;
+    while (d <= s.campaign.end && s.dataAsOf && d <= s.dataAsOf) { if (!s.dates.includes(d)) n++; d = addDay(d, 1); }
+    return n;
+  }
+
+  function renderCal() {
+    const s = state;
+    const months = [['2026-11', '11 月'], ['2026-12', '12 月'], ['2027-01', '1 月']];
+    $('calTabs').innerHTML = months.map(([k, l]) => `<button data-m="${k}" class="${k === calMonth ? 'on' : ''}">${l}</button>`).join('');
+    $('calTabs').querySelectorAll('button').forEach(b => b.onclick = () => { calMonth = b.dataset.m; renderCal(); });
+    const [y, m] = calMonth.split('-').map(Number);
+    const daysIn = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    const lead = (new Date(Date.UTC(y, m - 1, 1)).getUTCDay() + 6) % 7;
+    let cells = '一二三四五六日'.split('').map(w => `<div class="dow">${w}</div>`).join('');
+    for (let i = 0; i < lead; i++) cells += '<div class="d out"></div>';
+    let on = 0, miss = 0;
+    for (let d = 1; d <= daysIn; d++) {
+      const ds = `${calMonth}-${String(d).padStart(2, '0')}`;
+      const [cls, title] = dayState(s, ds);
+      if (cls === 'on') on++; if (cls === 'miss') miss++;
+      cells += `<div class="d ${cls}${ds === s.today ? ' today' : ''}" title="${ds}：${title}">${d}</div>`;
+    }
+    $('cal').innerHTML = `<div class="grid">${cells}</div>`;
+    $('calSum').innerHTML = `<span>${m} 月：已打卡 <b>${on}</b> 日・漏打卡 <b>${miss}</b> 日</span><span>本月 +<b>${fmtN(on * 180)}</b> 分</span>`;
+    $('calRange').textContent = `合共已打卡 ${s.days} 日`;
+  }
+
+  function renderGifts(s) {
+    $('gifts').innerHTML = s.gifts.filter(g => g.enabled !== false).map(g => {
+      const can = s.open && g.remaining > 0 && s.balance >= g.cost;
+      const why = !s.open ? '不在兌換期' : g.remaining <= 0 ? '已送完' : s.balance < g.cost ? `尚差 ${fmtN(g.cost - s.balance)} 分` : '可兌換';
+      const pct = Math.min(100, Math.round(s.balance / g.cost * 100));
+      return `<div class="gift ${can ? 'can' : ''}">
+        <span class="tag ${g.type === '電子' ? 'e' : 'p'}">${esc(g.type)}</span>
+        <div class="ico"><svg viewBox="0 0 24 24">${ICON[g.id] || ICON.CS}</svg></div>
+        <div class="nm">${esc(g.name)}</div>
+        <div class="cost">${fmtN(g.cost)} <small>分</small></div>
+        <div class="bar"><i style="width:${pct}%"></i></div>
+        <div class="meta">${why}・剩 ${g.remaining}／${g.total}</div>
+        <button class="btn" data-gift="${esc(g.id)}" ${can ? '' : 'disabled'}>${g.remaining <= 0 ? '已送完' : '兌換'}</button>
+      </div>`;
+    }).join('');
+    $('gifts').querySelectorAll('button[data-gift]').forEach(b => b.addEventListener('click', () => confirmRedeem(b.dataset.gift)));
+    $('redeemHint').textContent = s.open ? '兌換截止：2027 年 2 月 7 日 23:59:59。兌換一經確認，不可取消。' : '現時不在兌換期內。';
+  }
+
+  function giftNote(type, notifyBy) {
+    if (type === '電子') return '將於兌換後 7–14 個工作日內發送至你的 LongbridgeAI 賬戶，請到「長橋 App → 我的卡券」查看。';
+    return `請保存兌換編號。我們會於 ${cnDate(notifyBy)} 或之前通知你到 Longbridge Café（尖沙咀彌敦道 26 號地舖）領取。`;
+  }
+
+  function renderHist(s) {
+    if (!s.history.length) { $('hist').innerHTML = '<div class="hint" style="margin:0">未有兌換記錄。積分足夠時，可在上方兌換禮品。</div>'; return; }
+    $('hist').innerHTML = s.history.map(h => `<div class="h">
+      <div class="top"><b>${esc(h.name)}</b><span class="st ${['已發', '已領取'].includes(h.status) ? 'done' : ''}">${esc(h.status)}</span></div>
+      <div class="code">${esc(h.code)}</div>
+      <div class="note">${esc(h.time)}・扣減 ${fmtN(h.cost)} 分</div>
+      <div class="note">${esc(giftNote(h.type, h.notifyBy))}</div></div>`).join('');
+  }
+
+  /* ---------------- 兌換 ---------------- */
+  function modal(html) { $('sheet').innerHTML = html; $('modal').classList.remove('hidden'); }
+  function closeModal() { $('modal').classList.add('hidden'); }
+  $('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
+
+  function confirmRedeem(gid) {
+    const g = state.gifts.find(x => x.id === gid);
+    const physical = '實物禮品於 Longbridge Café 領取：1 月 31 日或之前兌換者，將於 1 月 31 日或之前收到領取通知；2 月 1 日至 7 日兌換者，將於 2 月 14 日或之前收到通知。';
+    modal(`<h3>確認兌換？</h3>
+      <p><b>${esc(g.name)}</b><br>扣除 <b style="color:var(--g)">${fmtN(g.cost)}</b> 分・兌換後可用積分 ${fmtN(state.balance - g.cost)} 分</p>
+      <p class="hint">${g.type === '電子' ? esc(giftNote('電子')) : physical}</p>
+      <p class="hint">兌換一經確認，不可取消或更改。</p>
+      <div class="row"><button class="btn ghost" id="cNo">取消</button><button class="btn" id="cYes">確認兌換</button></div>
+      <div class="err" id="cErr"></div>`);
+    $('cNo').onclick = closeModal;
+    $('cYes').onclick = async () => {
+      $('cYes').disabled = true; $('cYes').textContent = '處理中…';
+      try {
+        const r = await call({ action: 'redeem', id: cred.id, contact: cred.contact, giftId: gid });
+        if (r.error) { $('cErr').textContent = r.error; $('cYes').disabled = false; $('cYes').textContent = '確認兌換'; return; }
+        show(r.state);
+        const v = r.voucher;
+        modal(`<h3>兌換成功 🎉</h3><p>${esc(v.name)}・扣除 ${fmtN(v.cost)} 分</p>
+          <div class="big">${esc(v.code)}</div>
+          <p>${esc(giftNote(v.type, v.notifyBy))}</p>
+          <p class="hint">建議截圖保存此頁。兌換記錄亦會顯示在「兌換記錄」。</p>
+          <div class="row"><button class="btn" id="cOk">完成</button></div>`);
+        $('cOk').onclick = closeModal;
+      } catch (e) {
+        $('cErr').textContent = '連線失敗，請重新整理頁面查看兌換記錄，避免重複兌換。';
+        $('cYes').disabled = false; $('cYes').textContent = '確認兌換';
+      }
+    };
+  }
+
+  /* ---------------- 排行榜 ---------------- */
+  function renderBoard(b) {
+    if (!b || b.off) { $('boardCard').classList.add('hidden'); return; }
+    $('boardCard').classList.remove('hidden');
+    $('boardAsOf').textContent = b.asOf ? `截至 ${shortDate(b.asOf)}・${b.count} 人上榜` : '';
+    $('myRank').innerHTML = b.me ? `<div class="myrank"><span>你的排名<br><small style="color:var(--t2)">已打卡 ${b.me.days} 日・${fmtN(b.me.total)} 分</small></span><b>第 ${b.me.rank} 名</b></div>` : '';
+    if (!b.top.length) { $('podium').innerHTML = ''; $('board').innerHTML = '<div class="hint" style="margin:0">暫未有打卡記錄，成為第一個上榜的人！</div>'; return; }
+    const [a, c, d] = b.top;
+    const pod = (r, k) => r ? `<div class="pod ${k} ${r.me ? 'me' : ''}"><div class="medal">${r.rank}</div><div class="id">${esc(r.name)}</div><div class="dd">${r.days} 日</div></div>` : '<div></div>';
+    $('podium').innerHTML = `<div class="podium">${pod(c, 'p2')}${pod(a, 'p1')}${pod(d, 'p3')}</div>`;
+    $('board').innerHTML = `<div class="rows">` + b.top.slice(3).map(r => `<div class="rw ${r.me ? 'me' : ''}"><span class="r">${r.rank}</span><span>${esc(r.name)}${r.me ? '（你）' : ''}</span><span class="dd">${r.days} 日</span><span class="pt">${fmtN(r.total)} 分</span></div>`).join('') + '</div>';
+  }
+
+  async function loadBoard() {
+    try { renderBoard(await call({ action: 'leaderboard' })); }
+    catch (e) { $('board').innerHTML = '<div class="hint" style="margin:0">排行榜暫時未能載入。</div>'; }
+  }
+
+  /* ---------------- 示範資料 ---------------- */
+  function demo(body) {
+    const D = window.__demo || (window.__demo = (() => {
+      const dates = [];
+      for (let d = 19; d <= 30; d++) if (![23, 27].includes(d)) dates.push(`2026-11-${d}`);
+      for (let d = 1; d <= 9; d++) if (d !== 6) dates.push(`2026-12-0${d}`);
+      return {
+        id: 'demo', registered: '2026-11-19', countFrom: '2026-11-19', dates, task: true, agent: false,
+        dataAsOf: '2026-12-09', today: '2026-12-10', campaign: { start: '2026-11-19', end: '2027-01-31', redeemEnd: '2027-02-07' },
+        gifts: [
+          { id: 'CS', name: 'Chargespot HK$8 電子現金券', type: '電子', cost: 1000, total: 80, remaining: 61, enabled: true },
+          { id: 'PK', name: 'LongbridgeAI 撲克牌', type: '實物', cost: 2000, total: 50, remaining: 38, enabled: true },
+          { id: 'CUP', name: 'LongbridgeAI 定製杯', type: '實物', cost: 3700, total: 40, remaining: 33, enabled: true },
+          { id: 'NV', name: 'NordVPN 1 個月服務', type: '電子', cost: 3700, total: 80, remaining: 0, enabled: true },
+        ],
+        history: [{ code: 'LBAI-CS-0012-K7M', time: '2026-11-26 21:04', name: 'Chargespot HK$8 電子現金券', type: '電子', cost: 1000, status: '已發', notifyBy: '' }],
+        open: true,
+      };
+    })());
+    const calc = () => {
+      const total = D.dates.length * 180 + (D.task ? 200 : 0) + (D.agent ? 300 : 0);
+      const spent = D.history.reduce((s, h) => s + h.cost, 0);
+      const board = { asOf: D.dataAsOf, count: 86, me: { rank: 4, days: D.dates.length, total },
+        top: [
+          { rank: 1, name: '28****03', days: 21, total: 4280 }, { rank: 2, name: '17****52', days: 21, total: 3980 },
+          { rank: 3, name: '20****18', days: 20, total: 4100 }, { rank: 4, name: 'de****mo', days: D.dates.length, total, me: true },
+          { rank: 5, name: '19****60', days: 17, total: 3260 }, { rank: 6, name: '10****77', days: 15, total: 2700 },
+          { rank: 7, name: '26****41', days: 14, total: 2520 }, { rank: 7, name: '13****09', days: 14, total: 2520 },
+        ] };
+      return Object.assign({}, D, { days: D.dates.length, total, spent, balance: total - spent, board });
+    };
+    return new Promise(res => setTimeout(() => {
+      if (body.action === 'leaderboard') { const b = calc().board; res(Object.assign({}, b, { me: null, top: b.top.map(r => Object.assign({}, r, { me: false })) })); return; }
+      if (body.id !== 'demo' || String(body.contact).replace(/\D/g, '').slice(-8) !== '12345678') { res({ error: '長橋 ID 或手機／電郵不正確。請使用報名表所填資料；新報名者的資料將於翌日更新。' }); return; }
+      if (body.action === 'lookup') { res(calc()); return; }
+      if (body.action === 'redeem') {
+        const s = calc(), g = D.gifts.find(x => x.id === body.giftId);
+        if (s.balance < g.cost) { res({ error: `積分不足：需要 ${g.cost} 分，現有 ${s.balance} 分。` }); return; }
+        g.remaining--;
+        const code = `LBAI-${g.id}-00${40 + D.history.length}-DM${D.history.length}`;
+        const notifyBy = g.type === '實物' ? '2027-01-31' : '';
+        D.history.unshift({ code, time: '2026-12-10 12:00', name: g.name, type: g.type, cost: g.cost, status: g.type === '實物' ? '未領取' : '未發', notifyBy });
+        res({ ok: true, voucher: { code, name: g.name, type: g.type, cost: g.cost, time: '2026-12-10 12:00', notifyBy }, state: calc() });
+      }
+    }, 250));
+  }
+
+  /* ---------------- 啟動 ---------------- */
+  $('goBtn').addEventListener('click', login);
+  $('contact').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
+  $('logoutBtn').addEventListener('click', logout);
+  let saved = null;
+  try { saved = JSON.parse(sessionStorage.getItem('dotai-cred') || 'null'); } catch (e) {}
+  if (saved && saved.id) { $('id').value = saved.id; $('contact').value = saved.contact; login(); } else { loadBoard(); }
+})();
+</script>
+</body>
+</html>
