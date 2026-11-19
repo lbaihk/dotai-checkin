@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#030A0C">
+<title>AI Agent Builder 比賽</title>
+<meta name="description" content="LongbridgeAI × DotAI「AI 分析師養成計劃」AI Agent Builder 比賽：報名、獎項、比賽時間及分享 Agent 教學">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --g: #00DBB6; --g65: #59E7CC; --g35: #A8F2E4; --o: #FC5200; --o65: #FD8B4D; --y: #FFE000;
+    --w: #fff; --k: #000; --d1: #030A0C; --d2: #0B2F33; --d3: #0E5F55;
+    --t1: rgba(255,255,255,.92); --t2: rgba(255,255,255,.62); --t3: rgba(255,255,255,.38);
+    --glass: rgba(255,255,255,.045); --glass2: rgba(255,255,255,.08); --edge: rgba(255,255,255,.09);
+    --font: "DM Sans", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    min-height: 100vh; color: var(--t1); font-family: var(--font); font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; background: var(--d1);
+    background-image: radial-gradient(900px 520px at 85% -5%, rgba(0,219,182,.20), transparent 60%), radial-gradient(700px 600px at -10% 40%, rgba(14,95,85,.35), transparent 60%), linear-gradient(180deg, var(--d1) 0%, #061719 45%, var(--d2) 100%);
+    background-attachment: fixed;
+  }
+  body::before { content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .5;
+    background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size: 40px 40px; mask-image: linear-gradient(180deg, #000 0%, transparent 70%); }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 16px 56px; position: relative; z-index: 1; }
+  a { color: var(--g); }
+
+  .nav { display: flex; gap: 6px; padding: 14px 0 0; }
+  .nav a { flex: 1; text-align: center; text-decoration: none; font-size: 14px; font-weight: 500; padding: 9px; border-radius: 12px; border: 1px solid var(--edge); color: var(--t2); background: rgba(0,0,0,.2); }
+  .nav a.on { background: var(--w); color: var(--k); border-color: var(--w); font-weight: 700; }
+
+  .hero { position: relative; padding: 22px 0 8px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand img { display: block; }
+  .brand .dot { height: 20px; } .brand .lb { height: 21px; } .brand .x { color: var(--t3); font-size: 14px; }
+  .star { position: absolute; right: -6px; top: 42px; width: 120px; height: 120px; pointer-events: none; filter: drop-shadow(0 0 28px rgba(0,219,182,.55)); }
+  .star.sm { right: 120px; top: 150px; width: 24px; height: 24px; filter: drop-shadow(0 0 10px rgba(0,219,182,.6)); }
+  .kicker { margin: 30px 0 4px; font-weight: 700; font-size: 17px; color: var(--t1); }
+  .hero h1 { font-size: 36px; line-height: 1.15; margin: 0 0 12px; letter-spacing: .3px; max-width: 75%; }
+  .hero h1 span { color: var(--g); }
+  .prize-pill { display: inline-flex; flex-direction: column; background: var(--y); color: var(--k); border-radius: 14px; padding: 8px 14px; transform: rotate(-2deg); box-shadow: 0 10px 30px rgba(255,224,0,.18); }
+  .prize-pill small { font-size: 12px; font-weight: 500; }
+  .prize-pill b { font-size: 24px; line-height: 1.1; }
+  .cta { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-family: inherit; font-size: 15px; font-weight: 700; border: 0; border-radius: 12px; padding: 13px 18px; cursor: pointer; background: var(--g); color: var(--k); text-decoration: none; transition: box-shadow .2s, transform .08s; }
+  .btn:hover { box-shadow: 0 0 0 4px rgba(0,219,182,.18), 0 8px 24px rgba(0,219,182,.25); }
+  .btn:active { transform: scale(.98); }
+  .btn.ghost { background: transparent; color: var(--t1); border: 1px solid var(--edge); }
+  .btn.ghost:hover { box-shadow: none; background: var(--glass2); }
+  .cta .btn { flex: 1; min-width: 150px; }
+
+  .card { background: var(--glass); border: 1px solid var(--edge); border-radius: 20px; padding: 20px; margin-top: 14px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .card h2 { font-size: 18px; margin: 0 0 14px; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; color: var(--w); }
+  .card h2 small { font-size: 12px; font-weight: 400; color: var(--t2); }
+  .hint { font-size: 12px; color: var(--t2); margin-top: 10px; }
+
+  .steps3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .s3 { background: rgba(0,0,0,.25); border: 1px solid var(--edge); border-radius: 14px; padding: 12px; }
+  .s3 b { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; background: var(--g); color: var(--k); font-size: 14px; margin-bottom: 6px; }
+  .s3 div { font-size: 14px; font-weight: 500; color: var(--w); }
+  .s3 span { display: block; font-size: 12px; color: var(--t2); margin-top: 2px; }
+
+  .prizes { display: grid; gap: 8px; }
+  .pz { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 12px; border-radius: 14px; background: rgba(0,0,0,.22); border: 1px solid var(--edge); }
+  .pz .ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 20px; background: var(--glass2); }
+  .pz .nm { font-weight: 700; color: var(--w); }
+  .pz .nm em { font-style: normal; font-size: 11px; background: var(--o); color: var(--w); padding: 1px 6px; border-radius: 6px; margin-left: 6px; vertical-align: 2px; }
+  .pz .ds { font-size: 12px; color: var(--t2); }
+  .pz .amt { text-align: right; font-weight: 700; font-size: 18px; color: var(--y); white-space: nowrap; }
+  .pz .amt small { display: block; font-size: 11px; font-weight: 400; color: var(--t2); }
+  .pz.gp { border-color: rgba(0,219,182,.45); background: linear-gradient(135deg, rgba(0,219,182,.16), rgba(0,0,0,.2)); }
+  .pz.gp .amt { color: var(--g); }
+
+  .pro { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pro div { border-radius: 14px; padding: 14px; background: linear-gradient(135deg, rgba(0,219,182,.16), rgba(0,219,182,.04)); border: 1px solid rgba(0,219,182,.25); }
+  .pro b { font-size: 26px; color: var(--g); }
+  .pro b small { font-size: 14px; }
+  .pro span { display: block; font-size: 13px; color: var(--t1); }
+  .pro em { font-style: normal; display: block; font-size: 12px; color: var(--t2); }
+
+  .tl { display: grid; grid-template-columns: repeat(5, 1fr); position: relative; margin-top: 4px; }
+  .tl::before { content: ""; position: absolute; left: 10%; right: 10%; top: 9px; height: 2px; background: var(--g35); opacity: .5; }
+  .tl div { text-align: center; position: relative; padding: 0 2px; }
+  .tl i { display: block; width: 18px; height: 18px; border-radius: 50%; margin: 0 auto 8px; border: 3px solid var(--g); background: var(--d1); }
+  .tl div.end i { background: var(--y); border-color: var(--y); }
+  .tl div.hot i { background: var(--g); }
+  .tl b { display: block; font-size: 16px; color: var(--w); }
+  .tl span { display: block; font-size: 12px; color: var(--t2); line-height: 1.35; }
+
+  .score { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .score div { border-radius: 14px; padding: 14px; background: rgba(0,0,0,.25); border: 1px solid var(--edge); }
+  .score b { font-size: 26px; color: var(--y); }
+  .score span { display: block; font-size: 14px; color: var(--w); font-weight: 500; }
+  .score em { font-style: normal; display: block; font-size: 12px; color: var(--t2); }
+
+  .guide { counter-reset: st; display: grid; gap: 18px; }
+  .gs { display: grid; gap: 10px; }
+  .gs h3 { margin: 0; font-size: 16px; color: var(--w); display: flex; gap: 10px; align-items: center; }
+  .gs h3::before { counter-increment: st; content: counter(st); flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--g); color: var(--k); font-size: 14px; }
+  .gs p { margin: 0; color: var(--t2); font-size: 14px; padding-left: 38px; }
+  .gs p b { color: var(--t1); }
+  .shot { margin-left: 38px; border-radius: 14px; overflow: hidden; border: 1px solid var(--edge); background: #fff; }
+  .shot img { display: block; width: 100%; height: auto; }
+  .shot.narrow { max-width: 360px; }
+  .tip { margin-top: 16px; border-radius: 14px; padding: 12px 14px; background: linear-gradient(135deg, rgba(255,224,0,.14), rgba(255,224,0,.03)); border: 1px solid rgba(255,224,0,.35); font-size: 14px; }
+  .tip b { color: var(--y); }
+
+  .rules { font-size: 13px; color: var(--t2); padding-left: 18px; margin: 0; }
+  .rules li { margin-bottom: 6px; }
+  .rules b { color: var(--t1); }
+  footer { text-align: center; font-size: 11px; color: var(--t3); padding: 8px 16px 36px; max-width: 720px; margin: 0 auto; position: relative; z-index: 1; }
+
+  @media (max-width: 480px) {
+    .hero h1 { font-size: 30px; }
+    .star { width: 92px; height: 92px; top: 56px; }
+    .steps3 { grid-template-columns: 1fr; }
+    .tl b { font-size: 14px; }
+    .tl span { font-size: 11px; }
+    .gs p, .shot { margin-left: 0; padding-left: 0; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <radialGradient id="sg" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#E9FFFA"/><stop offset=".45" stop-color="#7BF0D9"/><stop offset="1" stop-color="#00DBB6"/></radialGradient>
+    <symbol id="star4" viewBox="0 0 100 100"><path d="M50 0 C54 34 66 46 100 50 C66 54 54 66 50 100 C46 66 34 54 0 50 C34 46 46 34 50 0Z" fill="url(#sg)"/></symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <nav class="nav">
+    <a href="./">每日打卡・積分</a>
+    <a href="competition.html" class="on">Agent 比賽</a>
+  </nav>
+
+  <header class="hero">
+    <div class="brand">
+      <img class="lb" src="lbai-logo.png" alt="LongbridgeAI">
+      <span class="x">×</span>
+      <img class="dot" src="dotai-logo.png" alt="Dot.ai">
+    </div>
+    <svg class="star"><use href="#star4"/></svg>
+    <svg class="star sm"><use href="#star4"/></svg>
+    <div class="kicker">「AI 分析師養成計劃」</div>
+    <h1>AI Agent Builder <span>比賽</span></h1>
+    <div class="prize-pill"><small>總獎值超過</small><b>HK$18,000</b><small>現金 HK$3,000 ＋ 全額學費資助</small></div>
+    <div class="cta">
+      <a class="btn" id="regBtn" href="https://forms.gle/RUCByfGSsVNCjBUGA" target="_blank" rel="noopener">立即報名 →</a>
+      <a class="btn ghost" href="#share">點樣分享我嘅 Agent？</a>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2>3 步參加</h2>
+    <div class="steps3">
+      <div class="s3"><b>1</b><div>填寫報名表</div><span>須持有有效 LongbridgeAI 賬戶</span></div>
+      <div class="s3"><b>2</b><div>自選主題建立 agent</div><span>用 LongbridgeAI Agent Platform</span></div>
+      <div class="s3"><b>3</b><div>公開發佈並提交</div><span>經提交表格提交作品名稱及連結</span></div>
+    </div>
+    <div class="hint">每人可提交 1 個作品；如多次提交表格，以最後提交之表格內容為最終評審作品。</div>
+  </section>
+
+  <section class="card">
+    <h2>獎項 <small>唔涉及真實資金或交易・唔以投資回報排名</small></h2>
+    <div class="prizes">
+      <div class="pz gp"><div class="ic">🎓</div><div><div class="nm">學生專屬 Grand Prize<em>學員組</em></div><div class="ds">只限 DotAI 正式課程學生・導師按學員組準則評選</div></div><div class="amt">全額學費<small>價值 HK$15,000・1 名</small></div></div>
+      <div class="pz"><div class="ic">🔥</div><div><div class="nm">超人氣 Agent 大獎</div><div class="ds">收藏數 50% ＋ 專屬連結邀請註冊並完成首問 50%</div></div><div class="amt">HK$1,000<small>1 名</small></div></div>
+      <div class="pz"><div class="ic">🥇</div><div><div class="nm">最佳 Agent 設計大獎</div><div class="ds">DotAI 專業導師綜合評選第一名</div></div><div class="amt">HK$1,000<small>1 名</small></div></div>
+      <div class="pz"><div class="ic">🥈</div><div><div class="nm">傑出 Agent 設計獎</div><div class="ds">DotAI 專業導師綜合評選第二名</div></div><div class="amt">HK$500<small>1 名</small></div></div>
+      <div class="pz"><div class="ic">✨</div><div><div class="nm">優異獎</div><div class="ds">DotAI 專業導師綜合評選</div></div><div class="amt">HK$100<small>每名・共 5 名</small></div></div>
+    </div>
+    <div class="hint">超人氣 Agent 大獎可與其他獎項同時獲得；其餘獎項每人只可獲得其中一項。</div>
+  </section>
+
+  <section class="card">
+    <h2>參賽專享 Pro 權益卡</h2>
+    <div class="pro">
+      <div><b>30<small> 天</small></b><span>正式課程學生</span><em>AI 專享 Pro 權益卡・100 份</em></div>
+      <div><b>7<small> 天</small></b><span>非正式課程學生</span><em>AI 專享 Pro 權益卡・150 份</em></div>
+    </div>
+    <div class="hint">完成報名後發放至「長橋 App → 我的卡券」。</div>
+  </section>
+
+  <section class="card">
+    <h2>比賽時間</h2>
+    <div class="tl">
+      <div class="hot"><i></i><b>11.19</b><span>比賽啟動<br>開始報名</span></div>
+      <div><i></i><b>12.01</b><span>開始提交<br>作品</span></div>
+      <div><i></i><b>12.31</b><span>報名及作品<br>提交截止</span></div>
+      <div><i></i><b>01.14</b><span>人氣計算及<br>導師評審完結</span></div>
+      <div class="end"><i></i><b>01.31</b><span>公佈結果<br>及頒獎</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>超人氣 Agent 大獎點計分？</h2>
+    <div class="score">
+      <div><b>50%</b><span>Agent 收藏數</span><em>朋友登入後喺你個 Agent 頁面撳收藏（☆）</em></div>
+      <div><b>50%</b><span>邀請註冊並完成首問</span><em>朋友用<b>你嘅專屬連結</b>註冊，並問第一條問題</em></div>
+    </div>
+    <div class="hint">人氣計算期：2026/12/1 – 2027/1/14。異常賬戶（一次性電郵、同一設備多個賬號等）唔會計算。</div>
+  </section>
+
+  <section class="card" id="share">
+    <h2>點樣分享你嘅 Agent <small>5 步</small></h2>
+    <div class="guide">
+      <div class="gs">
+        <h3>打開你嘅 Agent，撳右上角「分享」</h3>
+        <p>喺 LongbridgeAI 左邊撳 <b>「我的 Agents」</b>，揀返你嘅作品打開，再撳右上角 <b>「分享」</b>。</p>
+        <div class="shot"><img src="share-1.jpg" alt="Agent 頁面右上角的分享按鈕" loading="lazy"></div>
+      </div>
+      <div class="gs">
+        <h3>撳「複製連結」</h3>
+        <p>會彈出「Agent 分享」卡片。撳 <b>「複製連結」</b>；想發圖片就撳「下載圖片」，卡片上嘅 QR code 同樣包含你嘅邀請碼。</p>
+        <div class="shot narrow"><img src="share-2.jpg" alt="Agent 分享卡片，有下載圖片及複製連結" loading="lazy"></div>
+      </div>
+      <div class="gs">
+        <h3>見到「複製成功」就得</h3>
+        <p>連結已經自動包含 <b>你嘅專屬邀請碼</b>（網址有 <code>invite-code=…</code>），唔使自己再加。</p>
+        <div class="shot narrow"><img src="share-3.jpg" alt="複製成功提示及已複製按鈕" loading="lazy"></div>
+      </div>
+      <div class="gs">
+        <h3>貼去 WhatsApp、IG、Threads 分享</h3>
+        <p>朋友撳連結會直接見到你個 Agent。佢哋想問問題，就要撳左下角 <b>「登入／註冊」</b>。</p>
+        <div class="shot"><img src="share-4.jpg" alt="朋友打開連結後看到的 Agent 頁面" loading="lazy"></div>
+      </div>
+      <div class="gs">
+        <h3>朋友註冊並問第一條問題</h3>
+        <p>朋友經你條連結註冊，並喺 LongbridgeAI 問第一條問題，就會計入你嘅「邀請註冊並完成首問」。記得叫佢哋順手 <b>收藏</b> 你個 Agent！</p>
+        <div class="shot"><img src="share-5.jpg" alt="LongbridgeAI 登入及註冊視窗" loading="lazy"></div>
+      </div>
+    </div>
+    <div class="tip">💡 <b>小貼士：</b>一定要用 <b>你自己 Agent 頁面複製出嚟</b> 嘅連結，或者「下載圖片」入面嘅 QR code。朋友自己去 App Store 下載再註冊、或者註冊後先補填邀請碼，都唔會計入你嘅人氣分數。</div>
+  </section>
+
+  <section class="card">
+    <h2>比賽規則重點</h2>
+    <ul class="rules">
+      <li>須持有有效 LongbridgeAI 賬戶，報名時請填寫 App「我的」頁面嘅 <b>登錄 ID</b>，手機及電郵須與賬戶登記資料相同。</li>
+      <li>參賽 Agent 須於 <b>2026 年 12 月 31 日</b> 前 <b>公開發佈</b>，並經提交表格提交 Agent 名稱及連結。</li>
+      <li>比賽不涉及任何真實資金或真實交易，評選以 Agent 設計質素為準，不以任何投資回報排名。</li>
+      <li>參賽作品須為原創，不得包含違法、誤導性或保證回報之內容。</li>
+      <li>如有刷收藏、批量賬號等異常行為，主辦方有權取消參賽及獲獎資格。</li>
+      <li id="tncLi" class="hidden">詳情請參閱 <a id="tncLink" target="_blank" rel="noopener">條款及細則</a>。</li>
+    </ul>
+    <div class="cta"><a class="btn" href="https://forms.gle/RUCByfGSsVNCjBUGA" target="_blank" rel="noopener">立即報名比賽 →</a></div>
+  </section>
+</div>
+
+<footer>比賽不涉及真實資金或交易，作品不構成投資建議。廣場作品僅供學習交流，不代表官方推薦。投資有風險，理財需謹慎。詳情以條款及細則為準。</footer>
+
+<script src="config.js"></script>
+<script>
+  if (window.TNC_COMP_URL) { document.getElementById('tncLink').href = window.TNC_COMP_URL; document.getElementById('tncLi').classList.remove('hidden'); }
+</script>
+<style>.hidden { display: none !important; } code { font-family: ui-monospace, Menlo, monospace; font-size: 12px; background: rgba(255,255,255,.08); padding: 1px 5px; border-radius: 5px; color: var(--g65); }</style>
+</body>
+</html>

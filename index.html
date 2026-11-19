@@ -37,6 +37,9 @@
   .wrap { max-width: 680px; margin: 0 auto; padding: 0 16px 56px; position: relative; z-index: 1; }
 
   /* ---------- Hero ---------- */
+  .nav { display: flex; gap: 6px; padding: 14px 0 0; }
+  .nav a { flex: 1; text-align: center; text-decoration: none; font-size: 14px; font-weight: 500; padding: 9px; border-radius: 12px; border: 1px solid var(--edge); color: var(--t2); background: rgba(0,0,0,.2); }
+  .nav a.on { background: var(--w); color: var(--k); border-color: var(--w); font-weight: 700; }
   .hero { position: relative; padding: 22px 0 18px; }
   .brand { display: flex; align-items: center; gap: 12px; }
   .brand img { display: block; }
@@ -216,6 +219,10 @@
 </svg>
 
 <div class="wrap">
+  <nav class="nav">
+    <a href="./" class="on">每日打卡・積分</a>
+    <a href="competition.html">Agent 比賽</a>
+  </nav>
   <header class="hero">
     <div class="brand">
       <img class="dot" src="dotai-logo.png" alt="Dot.ai">
