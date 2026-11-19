@@ -156,7 +156,10 @@
   .h .top b { color: var(--w); font-size: 14px; }
   .h .st { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--glass2); color: var(--t1); white-space: nowrap; }
   .h .st.done { background: rgba(0,219,182,.18); color: var(--g); }
-  .h .code { font-family: ui-monospace, Menlo, monospace; font-size: 13px; color: var(--g65); margin-top: 4px; }
+  .h .code { font-size: 12px; color: var(--t2); margin-top: 4px; }
+  .h .code b { font-family: ui-monospace, Menlo, monospace; font-weight: 500; color: var(--t1); }
+  .sheet .big.muted { font-size: 15px; font-weight: 500; color: var(--t2); background: transparent; border: 1px solid var(--edge); }
+  .reflabel { font-size: 12px; color: var(--t2); text-align: center; margin-top: 14px; }
   .h .note { font-size: 12px; color: var(--t2); margin-top: 4px; }
 
   /* ---------- Leaderboard ---------- */
@@ -190,7 +193,7 @@
   .sheet { background: linear-gradient(160deg, #0D2A2D, #061214); border: 1px solid rgba(0,219,182,.3); border-radius: 22px; padding: 22px; max-width: 420px; width: 100%; box-shadow: 0 24px 60px rgba(0,0,0,.5); }
   .sheet h3 { margin: 0 0 8px; font-size: 20px; color: var(--w); }
   .sheet p { color: var(--t1); }
-  .sheet .big { font-family: ui-monospace, Menlo, monospace; font-size: 21px; font-weight: 700; color: var(--g); background: rgba(0,219,182,.08); border: 1px dashed var(--g); border-radius: 12px; padding: 12px; text-align: center; margin: 14px 0; letter-spacing: .5px; }
+  .sheet .big { font-family: ui-monospace, Menlo, monospace; font-size: 21px; font-weight: 700; color: var(--g); background: rgba(0,219,182,.08); border: 1px dashed var(--g); border-radius: 12px; padding: 12px; text-align: center; margin: 6px 0 14px; letter-spacing: .5px; }
   .sheet .row { display: flex; gap: 10px; margin-top: 18px; }
   .sheet .row .btn { flex: 1; }
   footer { text-align: center; font-size: 11px; color: var(--t3); padding: 8px 16px 36px; max-width: 680px; margin: 0 auto; position: relative; z-index: 1; }
@@ -434,6 +437,7 @@
       { ok: s.task, t: '建立定時任務', d: s.task ? '已完成' : '在 LongbridgeAI 建立一個定時任務即可獲得', p: '+200' },
       { ok: s.agent, t: '建立自定義 Agent', d: s.agent ? '已完成' : '在 LongbridgeAI 建立一個自定義 Agent 即可獲得', p: '+300' },
     ];
+    if (s.adj) items.push({ ok: s.adj > 0, t: '活動調整', d: '由主辦方人手調整', p: (s.adj > 0 ? '+' : '') + fmtN(s.adj) });
     $('checks').innerHTML = items.map(i => `
       <div class="chk ${i.ok ? 'ok' : 'todo'}"><div class="ic">${i.ok ? '✓' : ''}</div>
       <div class="t"><div>${esc(i.t)}</div><div>${esc(i.d)}</div></div><div class="pts">${i.p}</div></div>`).join('');
@@ -502,6 +506,10 @@
     $('redeemHint').textContent = s.open ? '兌換截止：2027 年 2 月 7 日 23:59:59。兌換一經確認，不可取消。' : '現時不在兌換期內。';
   }
 
+  function codeLabel(type) {
+    return type === '電子' ? '兌換參考編號（只供查詢，並非優惠碼／卡券碼）' : '領取編號（到 Café 領取時出示）';
+  }
+
   function giftNote(type, notifyBy) {
     if (type === '電子') return '將於兌換後 7–14 個工作日內發送至你的 LongbridgeAI 賬戶，請到「長橋 App → 我的卡券」查看。';
     return `請保存兌換編號。我們會於 ${cnDate(notifyBy)} 或之前通知你到 Longbridge Café（尖沙咀彌敦道 26 號地舖）領取。`;
@@ -511,7 +519,7 @@
     if (!s.history.length) { $('hist').innerHTML = '<div class="hint" style="margin:0">未有兌換記錄。積分足夠時，可在上方兌換禮品。</div>'; return; }
     $('hist').innerHTML = s.history.map(h => `<div class="h">
       <div class="top"><b>${esc(h.name)}</b><span class="st ${['已發', '已領取'].includes(h.status) ? 'done' : ''}">${esc(h.status)}</span></div>
-      <div class="code">${esc(h.code)}</div>
+      <div class="code">${esc(codeLabel(h.type))}：<b>${esc(h.code)}</b></div>
       <div class="note">${esc(h.time)}・扣減 ${fmtN(h.cost)} 分</div>
       <div class="note">${esc(giftNote(h.type, h.notifyBy))}</div></div>`).join('');
   }
@@ -539,9 +547,10 @@
         show(r.state);
         const v = r.voucher;
         modal(`<h3>兌換成功 🎉</h3><p>${esc(v.name)}・扣除 ${fmtN(v.cost)} 分</p>
-          <div class="big">${esc(v.code)}</div>
+          <div class="reflabel">${esc(codeLabel(v.type))}</div>
+          <div class="big ${v.type === '電子' ? 'muted' : ''}">${esc(v.code)}</div>
           <p>${esc(giftNote(v.type, v.notifyBy))}</p>
-          <p class="hint">建議截圖保存此頁。兌換記錄亦會顯示在「兌換記錄」。</p>
+          <p class="hint">${v.type === '電子' ? '卡券會直接發到你的賬戶，唔使輸入任何編號。' : '建議截圖保存此頁。'}兌換記錄亦會顯示在「兌換記錄」。</p>
           <div class="row"><button class="btn" id="cOk">完成</button></div>`);
         $('cOk').onclick = closeModal;
       } catch (e) {
