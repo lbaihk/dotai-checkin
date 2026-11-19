@@ -37,6 +37,16 @@
   .wrap { max-width: 680px; margin: 0 auto; padding: 0 16px 56px; position: relative; z-index: 1; }
 
   /* ---------- Hero ---------- */
+  .regbox { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; padding: 14px 16px; border-radius: 16px;
+    background: linear-gradient(135deg, rgba(255,224,0,.16), rgba(255,224,0,.04)); border: 1px solid rgba(255,224,0,.4); }
+  .regbox b { display: block; color: var(--w); font-size: 15px; }
+  .regbox span { display: block; color: var(--t2); font-size: 12px; }
+  .regbox a { flex: none; text-decoration: none; background: var(--y); color: var(--k); font-weight: 700; font-size: 14px; padding: 10px 14px; border-radius: 12px; white-space: nowrap; }
+  details.idhelp { margin-top: 8px; font-size: 13px; color: var(--t2); }
+  details.idhelp summary { cursor: pointer; color: var(--g); list-style: none; }
+  details.idhelp summary::-webkit-details-marker { display: none; }
+  details.idhelp img { display: block; width: 100%; max-width: 360px; margin-top: 10px; border-radius: 12px; border: 1px solid var(--edge); }
+  .hint a { color: var(--g); }
   .nav { display: flex; gap: 6px; padding: 14px 0 0; }
   .nav a { flex: 1; text-align: center; text-decoration: none; font-size: 14px; font-weight: 500; padding: 9px; border-radius: 12px; border: 1px solid var(--edge); color: var(--t2); background: rgba(0,0,0,.2); }
   .nav a.on { background: var(--w); color: var(--k); border-color: var(--w); font-weight: 700; }
@@ -235,6 +245,7 @@
     <h1>每日打卡<br>儲分換禮品</h1>
     <span class="pill">積分查詢 Points</span>
     <div class="sub">活動期 2026/11/19 – 2027/1/31・兌換截止 2027/2/7</div>
+    <div class="regbox" id="regBox"><div><b>未報名？先填報名表</b><span>報名後先開始計分，報名前嘅打卡唔計</span></div><a href="https://forms.gle/vk8ufgk5Ye8ast326" target="_blank" rel="noopener">立即報名 →</a></div>
     <div id="demoBar" class="demo hidden">示範模式：顯示假資料。用長橋 ID <b>demo</b>、手機 <b>12345678</b> 登入試用。</div>
   </header>
 
@@ -243,11 +254,12 @@
     <h2>登入查詢</h2>
     <label for="id">長橋 ID（即 App 登入 ID / User ID）</label>
     <input id="id" autocomplete="username" placeholder="報名表所填長橋 ID">
+    <details class="idhelp"><summary>點樣搵長橋 ID？</summary>打開長橋 App →「我的」頁面 → 名稱下方「登錄 ID」。<img src="how-to-find-id.png" alt="長橋 App「我的」頁面，名稱下方的登錄 ID" loading="lazy"></details>
     <label for="contact">手機號碼或電郵</label>
     <input id="contact" autocomplete="off" placeholder="報名表所填手機或電郵">
     <button class="btn full" id="goBtn">查詢我的積分</button>
     <div class="err" id="loginErr"></div>
-    <div class="hint">資料以報名表及 LongbridgeAI 後台為準，每日更新一次（今日打卡於翌日顯示）。未報名？請先填寫報名表，報名前的打卡不計分。</div>
+    <div class="hint">資料以報名表及 LongbridgeAI 後台為準，每日更新一次（今日打卡於翌日顯示）。未報名？請先填寫<a href="https://forms.gle/vk8ufgk5Ye8ast326" target="_blank" rel="noopener">報名表</a>，報名前的打卡不計分。</div>
   </section>
 
   <!-- 個人頁 -->
@@ -389,7 +401,7 @@
   function logout() {
     cred = null; state = null;
     try { sessionStorage.removeItem('dotai-cred'); } catch (e) {}
-    $('me').classList.add('hidden'); $('login').classList.remove('hidden');
+    $('me').classList.add('hidden'); $('login').classList.remove('hidden'); $('regBox').classList.remove('hidden');
     $('contact').value = '';
     loadBoard();
   }
@@ -408,7 +420,7 @@
   /* ---------------- 顯示 ---------------- */
   function show(s) {
     state = s;
-    $('login').classList.add('hidden'); $('me').classList.remove('hidden');
+    $('login').classList.add('hidden'); $('me').classList.remove('hidden'); $('regBox').classList.add('hidden');
     $('meId').textContent = s.id;
 
     const gifts = s.gifts.filter(g => g.enabled !== false && g.remaining > 0).sort((a, b) => a.cost - b.cost);
